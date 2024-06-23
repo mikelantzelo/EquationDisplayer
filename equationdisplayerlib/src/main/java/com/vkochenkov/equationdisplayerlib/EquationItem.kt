@@ -20,7 +20,8 @@ class EquationItem(
     private val underline: Any? = null,
     private val superscript: Any? = null,
     private val subscript: Any? = null,
-    private val sqrt: Int? = null
+    private val sqrt: Int? = null,
+    private val color: Color = Color.Black
 ) {
     @Composable
     fun Show(
@@ -56,8 +57,8 @@ class EquationItem(
                     }
                 }
             ) {
-                DrawSqrt(elementWidth, elementHigh, fontParams)
-                ShowMainContent(line, underline, fontParams, elementWidthDp, isIndex)
+                DrawSqrt(elementWidth, elementHigh, fontParams, color)
+                ShowMainContent(line, underline, fontParams, elementWidthDp, isIndex, color)
                 ShowIndices(superscript, subscript, fontParams, elementHighDp)
             }
         }
@@ -68,12 +69,12 @@ class EquationItem(
         elementWidth: Float,
         elementHigh: Float,
         fontParams: FontParams,
+        color: Color
     ) {
         val context = LocalContext.current
 
         val density = context.resources.displayMetrics.density
         val strokeWidth = (fontParams.fontSize.value / 10)
-        val color = Color.Black
 
         if (sqrt != null) {
             val addedWidth = fontParams.fontSize.value * density
@@ -111,7 +112,8 @@ class EquationItem(
         underline: Any?,
         fontParams: FontParams,
         elementWidthDp: Dp,
-        isIndex: Boolean = false
+        isIndex: Boolean = false,
+        color: Color
     ) {
         var paddingStart = 0.dp
         if (sqrt != null) {
@@ -129,7 +131,7 @@ class EquationItem(
                 CheckTypeWithList(line, newFontParams)
                 Divider(
                     modifier = Modifier.width(elementWidthDp - paddingStart),
-                    color = Color.Black,
+                    color = color,
                     thickness = (newFontParams.fontSize.value / 18).dp
                 )
                 CheckTypeWithList(underline, newFontParams)
@@ -168,32 +170,36 @@ class EquationItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     for (i in item) {
-                        CheckBaseType(i, fontParams, isIndex)
+                        CheckBaseType(i, fontParams, isIndex, color)
                     }
                 }
             }
             else -> {
-                CheckBaseType(item, fontParams, isIndex)
+                CheckBaseType(item, fontParams, isIndex, color)
             }
         }
     }
 
     @Composable
-    private fun CheckBaseType(item: Any?, fontParams: FontParams, isIndex: Boolean = false) {
+    private fun CheckBaseType(item: Any?, fontParams: FontParams, isIndex: Boolean = false, color: Color?) {
         when (item) {
             is String -> {
                 Text(
                     text = item,
                     fontSize = fontParams.fontSize,
                     fontStyle = fontParams.fontStyle,
-                    fontFamily = fontParams.fontFamily
+                    fontFamily = fontParams.fontFamily,
+                    color = color!!
                 )
             }
             is EquationItem -> {
                 item.Show(fontParams, isIndex)
             }
             else -> {
-                Text(text = "", fontSize = fontParams.fontSize)
+                Text(
+                    text = "", fontSize = fontParams.fontSize,
+                    color = color!!
+                )
             }
         }
     }
